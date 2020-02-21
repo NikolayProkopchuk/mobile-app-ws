@@ -2,7 +2,6 @@ package com.prokopchuk.ws.shared;
 
 import org.springframework.stereotype.Component;
 
-import java.nio.CharBuffer;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -19,7 +18,7 @@ public class Utils {
         StringBuilder returnValue = new StringBuilder(length);
 
         for (int i = 0; i < length; i++) {
-            returnValue.append(ALPHABET.charAt(RANDOM.nextInt()));
+            returnValue.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
         }
         return new String(returnValue);
     }
