@@ -1,10 +1,12 @@
 package com.prokopchuk.ws.service.impl;
 
-import com.prokopchuk.ws.UserRepository;
+import com.prokopchuk.ws.exceptions.UserServiceException;
+import com.prokopchuk.ws.io.repositories.UserRepository;
 import com.prokopchuk.ws.io.entity.UserEntity;
 import com.prokopchuk.ws.service.UserService;
 import com.prokopchuk.ws.shared.Utils;
 import com.prokopchuk.ws.shared.dto.UserDto;
+import com.prokopchuk.ws.ui.model.response.ErrorMessages;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -43,6 +45,42 @@ public class UserServiceImpl implements UserService {
 
         UserDto returnValue = new UserDto();
         BeanUtils.copyProperties(storedUserDetails, returnValue);
+        return returnValue;
+    }
+
+    @Override
+    public UserDto getUserByEmail(String email) {
+        UserEntity userEntity = userRepository.findByEmail(email);
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(userEntity, userDto);
+        return userDto;
+    }
+
+    @Override
+    public UserDto getUserById(String userId) {
+        UserDto returnValue = new UserDto();
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if (userEntity == null) {
+            throw new UsernameNotFoundException(userId);
+        }
+        BeanUtils.copyProperties(userEntity, returnValue);
+        return returnValue;
+    }
+
+    @Override
+    public UserDto updateUser(String userId, UserDto user) {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null) {
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+        UserDto returnValue = new UserDto();
+
+        UserEntity updatedUserDetails = userRepository.save(userEntity);
+        BeanUtils.copyProperties(updatedUserDetails, returnValue);
+
         return returnValue;
     }
 
