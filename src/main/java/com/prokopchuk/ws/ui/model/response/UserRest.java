@@ -1,10 +1,23 @@
 package com.prokopchuk.ws.ui.model.response;
 
-public class UserRest {
+import org.springframework.hateoas.RepresentationModel;
+
+import java.util.List;
+
+public class UserRest extends RepresentationModel<UserRest> {
     private String userId;
     private String firstName;
     private String lastName;
     private String email;
+    private List<AddressRest> addresses;
+
+    public List<AddressRest> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressRest> addresses) {
+        this.addresses = addresses;
+    }
 
     public String getUserId() {
         return userId;

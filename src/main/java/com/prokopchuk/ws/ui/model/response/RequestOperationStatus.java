@@ -1,5 +1,5 @@
 package com.prokopchuk.ws.ui.model.response;
 
 public enum RequestOperationStatus {
-    SUCCESS, ERROR;
+    SUCCESS, ERROR, PASSWORD_REST_NAME
 }
