@@ -2,6 +2,7 @@ package com.prokopchuk.ws.io.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 @Entity()
@@ -32,6 +33,15 @@ public class UserEntity implements Serializable {
     @Column(nullable = false)
     private Boolean emailVerificationStatus = false;
 
+    @OneToMany(mappedBy = "userDetails", cascade = CascadeType.ALL)
+    private List<AddressEntity> addresses;
+
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "users_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "roles_id", referencedColumnName = "id"))
+    private Collection<RoleEntity> roles;
+
     public List<AddressEntity> getAddresses() {
         return addresses;
     }
@@ -40,8 +50,7 @@ public class UserEntity implements Serializable {
         this.addresses = addresses;
     }
 
-    @OneToMany(mappedBy = "userDetails", cascade = CascadeType.ALL)
-    private List<AddressEntity> addresses;
+
 
     public long getId() {
         return id;
@@ -105,5 +114,13 @@ public class UserEntity implements Serializable {
 
     public void setEmailVerificationStatus(Boolean emailVerificationStatus) {
         this.emailVerificationStatus = emailVerificationStatus;
+    }
+
+    public Collection<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Collection<RoleEntity> roles) {
+        this.roles = roles;
     }
 }

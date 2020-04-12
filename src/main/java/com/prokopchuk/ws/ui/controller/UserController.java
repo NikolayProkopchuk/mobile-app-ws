@@ -3,6 +3,7 @@ package com.prokopchuk.ws.ui.controller;
 import com.prokopchuk.ws.exceptions.UserServiceException;
 import com.prokopchuk.ws.service.AddressService;
 import com.prokopchuk.ws.service.UserService;
+import com.prokopchuk.ws.shared.Roles;
 import com.prokopchuk.ws.shared.dto.AddressDto;
 import com.prokopchuk.ws.shared.dto.UserDto;
 import com.prokopchuk.ws.ui.model.request.PasswordResetModel;
@@ -16,11 +17,16 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -36,6 +42,7 @@ public class UserController {
     @Autowired
     private ModelMapper modelMapper;
 
+    @PostAuthorize("hasRole('ADMIN') or returnObject.content.userId == principal.userId")
     @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_XML_VALUE,
             MediaType.APPLICATION_JSON_VALUE, "application/hal+json"})
     public EntityModel<UserRest> getUser(@PathVariable String id) {
@@ -61,6 +68,7 @@ public class UserController {
             throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
         }
         UserDto userDto = modelMapper.map(userDetails, UserDto.class);
+        userDto.setRoles(Set.of(Roles.ROLE_USER.name()));
 
         UserDto createdUser = userService.createUser(userDto);
         return modelMapper.map(createdUser, UserRest.class);
@@ -75,6 +83,8 @@ public class UserController {
         return modelMapper.map(updatedUser, UserRest.class);
     }
 
+//    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
     @DeleteMapping(path = "/{id}", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public OperationStatusModel deleteUser(@PathVariable String id) {
         OperationStatusModel returnValue = new OperationStatusModel();
